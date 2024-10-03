@@ -1,0 +1,41 @@
+#!/bin/bash
+if [ "$1" == "unload" ] || [ "$1" == "u" ];
+then
+	echo "Stop Dislay Manager"
+	sudo systemctl stop display-manager
+	sleep 1
+	echo "Unload nvidia*"
+	sudo rmmod nvidia_drm
+	sudo rmmod nvidia_modeset
+	sudo rmmod nvidia_uvm
+	sudo lsof -t /dev/nvidia0 | xargs sudo kill
+	sudo rmmod nvidia
+	echo "Switch to integrated"
+	sudo system76-power graphics integrated
+	echo "Power off the nvidia gpu"
+	sudo system76-power graphics power off
+	sudo systemctl start display-manager
+elif [ "$1" == "load" ] || [ "$1" == "l" ];
+then
+	echo "Stop Dislay Manager"
+	sudo systemctl stop display-manager
+	echo "load nvidia driver"
+	sudo modprobe nvidia
+	sudo modprobe nvidia_uvm
+	echo "Power on the nvidia gpu"
+	sudo system76-power graphics power on
+	echo "Switch to nvidia"
+	sudo system76-power graphics nvidia
+	echo "load nvidia driver"
+	sudo modprobe nvidia_drm
+	sudo modprobe nvidia_modeset
+	echo "Start Display Manager"
+	sudo systemctl start display-manager
+elif [ "$1" == "status" ] || [ "$1" == "s" ];
+then
+	echo "DGPU Status"
+	sudo system76-power graphics power
+	sudo system76-power graphics
+else
+	echo dgpu [load/unload]
+fi
